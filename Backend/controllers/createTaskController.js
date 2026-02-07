@@ -1,39 +1,33 @@
 const Task=require("../models/createTask");
 const Team=require("../models/CreateTeam");
 const Project=require("../models/CreateProject");
+const createTaskValidation=require("../validation/taskValidation")
 
-const createTask=async(req,res)=>{
+const createTask=async(req,res,next)=>{
     try{
         const {id}=req.params;
-        const {title,description,priority,assignedTo}=req.body;
-
-        if(!title){
-            return res.status(400).json({
-                message:"Title is required"
-            })
-        }
+        // const {title,description,priority,assignedTo}=req.body;
+        const data=createTaskValidation.parse(req.body)
+        
         //check if project exists
         const project=await Project.findOne({_id:id}).populate("teamId")
         if(!project){
-            return res.status(400).json({
-                message:"Project doesnt exists"
-            })
+            throw new Error("Project doesn't eixts")
         }
         console.log(project)
 
         const team=project.teamId;
         if(!team.members.includes(req.user.id)){
-            return res.status(401).json({
-                message:"You are not a part of team to add task"
-            })
+             throw new Error("Not authorized to add task");
         }
 
         //create tassk
         const task=await Task.create({
-            title,
-            description,
-            priority,
-            assignedTo,
+            title:data.title,
+            description:req.body.description,
+            status:data.status,
+            priority:data.priority,
+            assignedTo:req.body.assignedTo,
             projectId:id,
             createdBy:req.user.id
         })
@@ -42,30 +36,24 @@ const createTask=async(req,res)=>{
     }
     catch(error){
         console.log(error);
-        res.status(500).json({
-            message:"Server error"
-        })
+        next(error)
     }
 }
 
-const getAllTasks=async(req,res)=>{
+const getAllTasks=async(req,res,next)=>{
     try{
         //get project id
         const {id}=req.params;
         //check if project exists
         const project=await Project.findOne({_id:id}).populate("teamId");
         if(!project){
-            return res.status(400).json({
-                message:"This project doesn't exist"
-            })
+             throw new Error("Project doesn't eixts");
         }
 
         //check if the team contains the current user to fetch tasks
         const team=project.teamId;
         if(!team.members.includes(req.user.id)){
-            return res.status(403).json({
-                message:"The team doesn't contain current user"
-            })
+            throw new Error("Not authorized to add task");
         }
 
         //get all tasks
@@ -75,12 +63,11 @@ const getAllTasks=async(req,res)=>{
     }
     catch(error){
         console.log(error);
-        res.status(500).json({
-            message:"Server error"
-        })
+       next(error)
+
     }
 }
-const updateTask=async(req,res)=>{
+const updateTask=async(req,res,next)=>{
     try{
         //get task id
         const {id}=req.params;
@@ -88,47 +75,37 @@ const updateTask=async(req,res)=>{
         const task=await Task.findOne({_id:id});
 
         if(!task){
-            return res.status(400).json({
-                message:"Task with id id doesn't exist"
-            })
+             throw new Error("Project doesn't eixts");
         }
         //check if project exists
         const project=await Project.findOne(task.projectId).populate("teamId");
         const team=project.teamId;
         if(!team.members.includes(req.user.id)){
-            return res.status(403).json({
-                message:"You are not the part of team"
-            })
+            throw new Error("Not authorized to add task");
         }
         const updatedTask=await Task.findByIdAndUpdate({_id:id},req.body,{new:true});
         res.status(200).json(updatedTask);
     }
     catch(error){
         console.log(error);
-        res.status(500).json({
-            message:"Server error"
-        })
+        next(error);
     }
 }
-const deleteTask=async(req,res)=>{
+const deleteTask=async(req,res,next)=>{
     try{
         //get the atsk id
         const {id}=req.params;
         const task=await Task.findOne({_id:id});
 
         if(!task){
-            return res.status(400).json({
-                message:"Task not found with this id"
-            })
+          throw new Error("Task not present")
         }
         //fidn project
         const project=await Project.findOne(task.projectId).populate("teamId");
 
         const team=project.teamId;
         if(!team.members.includes(req.user.id)){
-            return res.status(403).json({
-                message:"Not a authorized user to delete task"
-            })
+             throw new Error("Not authorized to add task");
         }
         const delTask=await Task.findByIdAndDelete(id);
         res.status(200).json(delTask)
@@ -136,12 +113,11 @@ const deleteTask=async(req,res)=>{
     }
     catch(error){
         console.log(error);
-        res.status(500).json({
-          message: "Server error",
-        });
+         next(error);
+
     }
 }
-const getModifiedTasks=async(req,res)=>{
+const getModifiedTasks=async(req,res,next)=>{
     try{
         const {id}=req.params;
         const {page=1,limit=10,status,priority,search}=req.query;
@@ -150,16 +126,12 @@ const getModifiedTasks=async(req,res)=>{
         console.log("proje:",project)
 
         if(!project){
-            return res.status(400).json({
-                message:"Project doesn't exist"
-            })
+             throw new Error("Project doesn't exists");
         }
         const team=await Team.findOne({_id:project.teamId});
         console.log("team:",team)
         if(!team.members.includes(req.user.id)){
-            return res.status(403).json({
-                message:"you are not a part of team"
-            })
+             throw new Error("Not authorized to add task");
         }
 
         const query={projectId:id}
@@ -189,9 +161,8 @@ const getModifiedTasks=async(req,res)=>{
     }
     catch(error){
           console.log(error);
-          res.status(500).json({
-            message: "Server error",
-          });
+           next(error);
+
     }
 }
 

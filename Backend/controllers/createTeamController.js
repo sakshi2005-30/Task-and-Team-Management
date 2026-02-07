@@ -1,14 +1,11 @@
 const Team=require("../models/CreateTeam")
-const createTeam=async(req,res)=>{
+const createTeamSchema=require("../validation/teamvalidation");
+const createTeam=async(req,res,next)=>{
     try{
-        const {name}=req.body;
-        if(!name){
-            return res.status(400).json({
-                message:"all fileds are required"
-            })
-        }
+       const data=createTeamSchema.parse(req.body);
+       
         const team=await Team.create({
-            name,
+            name:data.name,
             owner:req.user.id,
             members:[req.user.id]
         })
@@ -16,13 +13,11 @@ const createTeam=async(req,res)=>{
     }
     catch(error){
         console.log(error);
-        res.status(500).json({
-            message:"Server error"
-        })
+        next(error);
     }
 }
 
-const getTeams=async(req,res)=>{
+const getTeams=async(req,res,next)=>{
     try{
         const teams=await Team.find({
             members:req.user.id
@@ -31,9 +26,7 @@ const getTeams=async(req,res)=>{
     }
     catch(error){
         console.log(error);
-        res.status(500).json({
-            message:"Server error"
-        })
+        next(error)
     }
 }
 module.exports={createTeam,getTeams}

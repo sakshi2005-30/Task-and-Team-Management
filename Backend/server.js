@@ -8,6 +8,7 @@ const userRoutes=require("./routes/userRoutes")
 const TeamRoutes=require("./routes/createTeamRoutes")
 const ProjectRoutes=require("./routes/createProjectRoutes");
 const TaskRoutes=require("./routes/createTaskRoutes")
+const errorHandler=require("./middleware/errorMiddleware")
 connectToDB();
 app.use(express.json());
 app.use(cookieParser());
@@ -19,6 +20,8 @@ app.use("/api/auth",userRoutes)
 app.use("/api/team",TeamRoutes)
 app.use("/api/team",ProjectRoutes)
 app.use("/api/team",TaskRoutes)
+
+app.use(errorHandler)
 const PORT=process.env.PORT||3000;
 
 app.listen(PORT,()=>{
