@@ -1,4 +1,4 @@
-import { Navigate } from "react-router";
+import { Navigate, Outlet } from "react-router";
 import { useAuth } from "../context/AuthContext";
 
 
@@ -11,7 +11,12 @@ const ProtectedRoutes = ({children}) => {
     if(!user){
         return <Navigate to="/login"/>
     }
-  return children;
+  return(
+    <div>
+        {children}
+        <Outlet/>
+    </div>
+  );
     
   
 }
