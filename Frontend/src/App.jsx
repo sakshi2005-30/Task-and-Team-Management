@@ -5,6 +5,7 @@ import Dashboard from "./pages/Dashboard"
 import ProtectedRoutes from "./components/ProtectedRoutes"
 import Layout from "./components/Layout"
 import Project from "./pages/project"
+import Task from "./pages/Task"
 const App = () => {
   return (
     <div className="min-h-screen bg-gray-100">
@@ -19,6 +20,8 @@ const App = () => {
 
         <Route path="/dashboard" element={<Dashboard/>}/>
         <Route path="/dashboard/teams/:id" element={<Project/>}/>
+
+        <Route path="/dashboard/teams/task/:id" element={<Task/>}/>
         </Route>
         </Route>
       </Routes>

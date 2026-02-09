@@ -2,6 +2,7 @@ import React from 'react'
 import { useParams } from 'react-router'
 import {useState,useEffect} from "react";
 import { createProject,getProjects } from '../services/project';
+import { Link } from 'react-router';
 import {Plus} from "lucide-react";
 const Project = () => {
     const [name,setName]=useState("");
@@ -58,7 +59,7 @@ const Project = () => {
 
             {openProject && (
               <div className="inset-0 bg-black/30 fixed flex justify-center  ">
-                <div className="bg-white  my-10 py-8 px-6 rounded-lg shadow-md  ">
+                <div className="bg-white  my-10 py-8 px-6 rounded-lg shadow-md  max-w-lg w-full mx-auto">
                   <div className="flex flex-col space-y-2 ">
                     <p className="text-lg font-medium">Create New Project</p>
                     <p className="text-sm text-gray-500">
@@ -86,6 +87,7 @@ const Project = () => {
                         className=" ring-2 ring-transparent focus-within:ring-gray-300 w-full mt-1 px-4 py-2 outline-none rounded-lg bg-gray-100/6 placeholder:text-sm border border-gray-300"
                       />
                     </label>
+                    
                     <div className="flex space-x-4 justify-end">
                       <button
                         className=" text-center px-4 py-2 border border-gray-300 text-sm hover:bg-black/10 font-medium rounded-lg "
@@ -106,17 +108,22 @@ const Project = () => {
             )}
           </div>
 
-
           <div>
-            {projects.length>0 &&(
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-3 lg:gap-12 my-10">
-                    {projects.map((item)=>(
-                        <div key={item._id} className="border py-6 px-6 rounded-lg border-gray-300 bg-white hover:shadow-md ">
-                            <p className="text-lg text-center font-medium">{item.name}</p>
-                            <p className='text-sm text-gray-500'>{item.description}</p>
-                         </div>
-                    ))}
-                </div>
+            {projects.length > 0 && (
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-3 lg:gap-12 my-10">
+                {projects.map((item) => (
+                  <Link
+                    key={item._id}
+                    to={`/dashboard/teams/task/${item._id}`}
+                    className="border py-6 px-6 rounded-lg border-gray-300 bg-white hover:shadow-md "
+                  >
+                    <p className="text-lg text-center font-medium">
+                      {item.name}
+                    </p>
+                    <p className="text-sm text-gray-500">{item.description}</p>
+                  </Link>
+                ))}
+              </div>
             )}
           </div>
         </div>
