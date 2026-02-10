@@ -34,7 +34,7 @@ const Task = () => {
       }
     }
     fetchTasks();
-  },[]);
+  },[id]);
 
   const handleSubmit=async(e)=>{
      e.preventDefault();
@@ -71,7 +71,7 @@ const Task = () => {
       const res=await updateTask(updateId,{title:updateTitle,description:updateDescription,priority:updatePriority});
       console.log("u:",res.data);
       setUpdate(false);
-      setTasks((prev)=>prev.map((item)=>item._id===updateId?res:item));
+      setTasks((prev)=>prev.map((item)=>item._id===updateId?res.data:item));
       setUpdateId(null);
       setAddTaskOpen(false);
     }
@@ -134,16 +134,16 @@ const Task = () => {
                   <p className="text-sm font-semibold">Priority</p>
                   <p
                     onClick={() => {{
-                      update ? updatePriority : priority;
+                     setPriorityOpen(true)
                     }
 }}
                     className="bg-gray-100 w-30 text-center py-1  rounded-lg text-sm mt-2 font-medium flex justify-center items-enter"
                   >
-                    {priority}{" "}
+                    { update ? updatePriority : priority}{" "}
                     <ChevronDown className="w-4 h-4 my-1 ml-1 text-gray-500" />
                   </p>
                   {priorityOpen && (
-                    <button className="border w-30  flex flex-col rounded-lg border-gray-300">
+                    <div className="border w-30  flex flex-col rounded-lg border-gray-300">
                       <p
                         className="py-1 px-4 hover:bg-gray-200 hover:rounded-lg"
                         onClick={() => {
@@ -176,13 +176,17 @@ const Task = () => {
                       >
                         high
                       </p>
-                    </button>
+                    </div>
                   )}
                 </label>
                 <div className="flex space-x-4 justify-end">
                   <button
                     className=" text-center px-4 py-2 border border-gray-300 text-sm hover:bg-black/10 font-medium rounded-lg "
-                    onClick={() => setOpenTask(false)}
+                    onClick={() => {
+                      setAddTaskOpen(false);
+                      setUpdate(false);
+                      setUpdateId(null)
+                    }}
                   >
                     Cancel
                   </button>
@@ -208,7 +212,7 @@ const Task = () => {
                 className="border py-6 px-6 rounded-lg flex flex-col space-y-4 border-gray-300 bg-white"
               >
                 <p className="text-lg font-medium">{item.title}</p>
-                <p className="text-sm text-gray-500">{item.description}</p>
+                <p className="text-sm text-gray-500 w-40">{item.description}</p>
                 <div className="flex justify-between space-x-1">
                   <p className="font-medium text-sm px-2 py-1 bg-yellow-50 rounded-lg">
                     {item.priority}
